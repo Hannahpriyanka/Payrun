@@ -51,11 +51,9 @@ function calculatePayslip(employee: any, timesheet: any) {
 }
 
 /**
- * Generate a payrun for a given date range
+ * ✅ Generate payrun (fixed route)
  */
-app.post("/api/payruns", (req: Request, res: Response) => {
-  const { startDate, endDate } = req.body;
-
+app.post("/api/payruns/generate", (req: Request, res: Response) => {
   const payslips = timesheets.map((t) => {
     const emp = employees.find((e) => e.id === t.employeeId);
     return calculatePayslip(emp, t);
@@ -73,8 +71,7 @@ app.post("/api/payruns", (req: Request, res: Response) => {
 
   const newPayrun = {
     id: payruns.length + 1,
-    startDate,
-    endDate,
+    date: new Date().toISOString().split("T")[0],
     totals,
     payslips,
   };
@@ -105,7 +102,7 @@ app.get("/api/timesheets", (req: Request, res: Response) => {
 });
 
 /**
- * Start server (not during tests)
+ * Start server
  */
 if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () =>

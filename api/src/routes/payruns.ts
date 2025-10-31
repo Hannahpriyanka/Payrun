@@ -1,97 +1,101 @@
 import express from "express";
+import { prisma } from "../lib/db";
 
 const router = express.Router();
 
-// Temporary in-memory stores
-let payruns: any[] = [];
-let employees: any[] = [
-  { id: 1, name: "Alice Johnson", email: "alice@example.com", hourlyRate: 25 },
-  { id: 2, name: "Bob Smith", email: "bob@example.com", hourlyRate: 30 },
-];
-let timesheets: any[] = [
-  { employeeId: 1, hoursWorked: 37, allowances: 30 },
-  { employeeId: 2, hoursWorked: 45, allowances: 0 },
-];
-
-// --- Calculation Helpers ---
-
-function calculateGross(hoursWorked: number, baseRate: number, allowances: number) {
-  const normalHours = Math.min(38, hoursWorked);
-  const overtimeHours = Math.max(0, hoursWorked - 38);
-  const gross = normalHours * baseRate + overtimeHours * baseRate * 1.5 + allowances;
-  return { gross, normalHours, overtimeHours };
-}
-
-function calculateTax(gross: number) {
-  if (gross <= 370) return 0;
-  if (gross <= 900) return (gross - 370) * 0.1;
-  if (gross <= 1500) return 53 + (gross - 900) * 0.19;
-  if (gross <= 3000) return 53 + 114 + (gross - 1500) * 0.325;
-  if (gross <= 5000) return 53 + 114 + 487.5 + (gross - 3000) * 0.37;
-  return 53 + 114 + 487.5 + 740 + (gross - 5000) * 0.45;
-}
-
-function calculateSuper(gross: number) {
-  return gross * 0.115;
-}
-
-// --- POST /api/payruns ---
-router.post("/", (req, res) => {
-  const { startDate, endDate } = req.body;
-  if (!startDate || !endDate)
-    return res.status(400).json({ error: "startDate and endDate required" });
-
-  const payslips = timesheets.map((t) => {
-    const emp = employees.find((e) => e.id === t.employeeId);
-    if (!emp) return null;
-
-    const { gross, normalHours, overtimeHours } = calculateGross(
-      t.hoursWorked,
-      emp.hourlyRate,
-      t.allowances || 0
-    );
-    const tax = calculateTax(gross);
-    const superAmt = calculateSuper(gross);
-    const net = gross - tax;
-
-    return {
-      employeeId: emp.id,
-      employeeName: emp.name,
-      normalHours,
-      overtimeHours,
-      gross,
-      tax,
-      super: superAmt,
-      net,
-    };
-  }).filter(Boolean);
-
-  const totals = payslips.reduce(
-    (acc, p) => {
-      acc.gross += p.gross;
-      acc.tax += p.tax;
-      acc.super += p.super;
-      acc.net += p.net;
-      return acc;
-    },
-    { gross: 0, tax: 0, super: 0, net: 0 }
-  );
-
-  const payrun = {
-    id: payruns.length + 1,
-    startDate,
-    endDate,
-    totals,
-    payslips,
-  };
-
-  payruns.push(payrun);
-  res.status(201).json(payrun);
+// GET all payruns
+router.get("/", async (req, res) => {
+  try {
+    const payruns = await prisma.payrun.findMany({
+      include: { payslips: true },
+      orderBy: { id: "desc" },
+    });
+    res.json(payruns);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch payruns" });
+  }
 });
 
-// --- GET /api/payruns ---
-router.get("/", (req, res) => {
-  res.json(payruns);
+// POST to generate a new payrun
+router.post("/", async (req, res) => {
+  try {
+    const employees = await prisma.employee.findMany();
+    const timesheets = await prisma.timesheet.findMany();
+
+    if (employees.length === 0 || timesheets.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "No employees or timesheets found." });
+    }
+
+    let totalGross = 0,
+      totalTax = 0,
+      totalSuper = 0,
+      totalNet = 0;
+
+    const payslips = [];
+
+    for (const e of employees) {
+      const ts = timesheets.find((t) => t.employeeId === e.id);
+      if (!ts) continue;
+
+      const normalHours = Math.min(ts.hoursWorked, 38);
+      const overtimeHours = Math.max(ts.hoursWorked - 38, 0);
+      const gross =
+        normalHours * e.hourlyRate + overtimeHours * e.hourlyRate * 1.5;
+      const tax =
+        gross <= 370
+          ? 0
+          : gross <= 900
+          ? (gross - 370) * 0.1
+          : gross <= 1500
+          ? 53 + (gross - 900) * 0.19
+          : gross <= 3000
+          ? 167 + (gross - 1500) * 0.325
+          : gross <= 5000
+          ? 655 + (gross - 3000) * 0.37
+          : 1395 + (gross - 5000) * 0.45;
+      const superAmt = gross * 0.115;
+      const net = gross - tax;
+
+      totalGross += gross;
+      totalTax += tax;
+      totalSuper += superAmt;
+      totalNet += net;
+
+      payslips.push({
+        employeeId: e.id,
+        employeeName: e.name,
+        normalHours,
+        overtimeHours,
+        gross,
+        tax,
+        super: superAmt,
+        net,
+      });
+    }
+
+    const newPayrun = await prisma.payrun.create({
+      data: {
+        totalsGross: totalGross,
+        totalsTax: totalTax,
+        totalsSuper: totalSuper,
+        totalsNet: totalNet,
+        payslips: {
+          createMany: {
+            data: payslips,
+          },
+        },
+      },
+      include: { payslips: true },
+    });
+
+    res.status(201).json(newPayrun);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to generate payrun" });
+  }
 });
 
 export default router;
