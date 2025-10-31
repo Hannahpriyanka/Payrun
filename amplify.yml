@@ -1,31 +1,19 @@
 version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - cd mini-payrun-app
-        - npm ci
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: mini-payrun-app/dist
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - node_modules/**
-
-backend:
-  phases:
-    preBuild:
-      commands:
-        - cd api
-        - npm ci
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: api
-    files:
-      - '**/*'
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - cd mini-payrun-app
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: mini-payrun-app/dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+    appRoot: mini-payrun-app
