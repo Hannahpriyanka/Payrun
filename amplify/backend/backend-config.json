@@ -1,0 +1,49 @@
+{
+  "api": {
+    "api58601aa0": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "payroof60e5510"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
+  "function": {
+    "payroof60e5510": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "hosting": {
+    "S3AndCloudFront": {
+      "providerPlugin": "awscloudformation",
+      "service": "S3AndCloudFront"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_payroof60e5510_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "payroof60e5510"
+        }
+      ]
+    },
+    "AMPLIFY_function_payroof60e5510_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "payroof60e5510"
+        }
+      ]
+    }
+  }
+}

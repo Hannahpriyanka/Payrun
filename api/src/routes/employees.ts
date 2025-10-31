@@ -1,14 +1,13 @@
-import express from "express";
+import { Router } from "express";
 
-const router = express.Router();
+const router = Router();
 
-// Sample in-memory employees data (you can replace with DB later)
 const employees = [
-  { id: 1, name: "Alice Johnson", email: "alice@example.com", hourlyRate: 25 },
-  { id: 2, name: "Bob Smith", email: "bob@example.com", hourlyRate: 30 },
+  { id: "E001", name: "Alice Johnson", hourlyRate: 25 },
+  { id: "E002", name: "Bob Smith", hourlyRate: 30 },
+  { id: "E003", name: "Charlie Brown", hourlyRate: 28 },
 ];
 
-// GET /api/employees
 router.get("/", (req, res) => {
   res.json(employees);
 });

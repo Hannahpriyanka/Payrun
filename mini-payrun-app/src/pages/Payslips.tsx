@@ -1,94 +1,37 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { motion } from "framer-motion";
-
-interface Payslip {
-  id: number;
-  employeeName: string;
-  grossPay: number;
-  tax: number;
-  netPay: number;
-  payrunId: number;
-  createdAt: string;
-}
+import React from "react";
 
 const Payslips: React.FC = () => {
-  const [payslips, setPayslips] = useState<Payslip[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const fetchPayslips = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get("http://localhost:4000/api/payslips");
-      setPayslips(res.data);
-    } catch (err) {
-      console.error("Error fetching payslips:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPayslips();
-  }, []);
+  const payslips = [
+    { employeeId: "E001", name: "Alice Johnson", grossPay: 1000, tax: 200, netPay: 800 },
+    { employeeId: "E002", name: "Bob Smith", grossPay: 1140, tax: 228, netPay: 912 },
+    { employeeId: "E003", name: "Charlie Brown", grossPay: 1176, tax: 235.2, netPay: 940.8 },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white p-10">
-      <motion.h1
-        className="text-4xl font-bold mb-10 text-center"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        🧾 Payslips
-      </motion.h1>
-
-      {loading ? (
-        <div className="text-center text-lg text-gray-300">Loading payslips...</div>
-      ) : payslips.length === 0 ? (
-        <div className="text-center text-lg text-gray-300">No payslips available yet.</div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {payslips.map((slip, idx) => (
-            <motion.div
-              key={slip.id}
-              className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 p-6 hover:scale-[1.03] transition-transform"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-            >
-              <h2 className="text-xl font-semibold mb-3 text-blue-200">
-                {slip.employeeName}
-              </h2>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <span className="text-gray-300">Gross Pay:</span>{" "}
-                  <span className="text-green-400 font-semibold">
-                    £{slip.grossPay.toFixed(2)}
-                  </span>
-                </p>
-                <p>
-                  <span className="text-gray-300">Tax:</span>{" "}
-                  <span className="text-red-400 font-semibold">
-                    £{slip.tax.toFixed(2)}
-                  </span>
-                </p>
-                <p>
-                  <span className="text-gray-300">Net Pay:</span>{" "}
-                  <span className="text-yellow-400 font-semibold">
-                    £{slip.netPay.toFixed(2)}
-                  </span>
-                </p>
-                <p>
-                  <span className="text-gray-400">Payrun ID:</span> {slip.payrunId}
-                </p>
-                <p className="text-gray-400 text-xs">
-                  {new Date(slip.createdAt).toLocaleString()}
-                </p>
-              </div>
-            </motion.div>
+    <div className="bg-white/40 backdrop-blur-lg rounded-3xl shadow-2xl p-8 animate-fadeIn">
+      <h2 className="text-3xl font-semibold text-blue-700 mb-6">Payslips</h2>
+      <table className="w-full text-center border border-blue-200 rounded-xl overflow-hidden">
+        <thead className="bg-blue-600 text-white">
+          <tr>
+            <th className="p-3">Employee ID</th>
+            <th className="p-3">Name</th>
+            <th className="p-3">Gross Pay</th>
+            <th className="p-3">Tax</th>
+            <th className="p-3">Net Pay</th>
+          </tr>
+        </thead>
+        <tbody>
+          {payslips.map((p, i) => (
+            <tr key={p.employeeId} className={`${i % 2 ? "bg-blue-50" : "bg-white/70"}`}>
+              <td className="p-3">{p.employeeId}</td>
+              <td className="p-3">{p.name}</td>
+              <td className="p-3">${p.grossPay}</td>
+              <td className="p-3">${p.tax}</td>
+              <td className="p-3 font-semibold text-green-700">${p.netPay}</td>
+            </tr>
           ))}
-        </div>
-      )}
+        </tbody>
+      </table>
     </div>
   );
 };

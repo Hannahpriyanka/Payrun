@@ -1,0 +1,28 @@
+version: 1
+applications:
+  - appRoot: mini-payrun-app  # Ensure the correct frontend path here
+    backend:
+      phases:
+        preBuild:
+          commands:
+            - '# Ensure the correct directory structure'
+            - 'cd mini-payrun-app'
+            - 'npm install'
+        build:
+          commands:
+            - 'npm run build'
+    frontend:
+      phases:
+        build:
+          commands:
+            - 'npm run build'   # Add or modify build commands as necessary
+        deploy:
+          commands:
+            - 'amplify publish'  # If using Amplify CLI for deployment
+    artifacts:
+      baseDirectory: mini-payrun-app/dist   # The directory that has your built app
+      files:
+        - '**/*'
+    cache:
+      paths:
+        - node_modules/**/*

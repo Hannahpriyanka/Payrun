@@ -1,31 +1,46 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { fetchEmployees } from "../services/api";
 
-export default function EmployeesPage() {
-  const [employees, setEmployees] = useState([]);
+interface Employee {
+  id: string;
+  name: string;
+  hourlyRate: number;
+}
+
+const Employees: React.FC = () => {
+  const [employees, setEmployees] = useState<Employee[]>([]);
 
   useEffect(() => {
-    axios.get("http://localhost:4000/api/employees")
-      .then((res) => setEmployees(res.data))
-      .catch(() => console.error("Failed to load employees"));
+    const load = async () => {
+      const data = await fetchEmployees();
+      setEmployees(data);
+    };
+    load();
   }, []);
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6 text-blue-300">Employees 👩‍💼</h2>
-      {employees.length === 0 ? (
-        <p className="text-gray-400">No employees found.</p>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {employees.map((emp: any) => (
-            <div key={emp.id} className="bg-[#1e2a47] p-5 rounded-2xl shadow-lg hover:shadow-blue-500/20 transition">
-              <h3 className="text-lg font-semibold text-blue-300">{emp.name}</h3>
-              <p className="text-gray-300">Role: {emp.role}</p>
-              <p className="text-gray-400 text-sm">Rate: £{emp.hourlyRate}/hr</p>
-            </div>
+    <div className="bg-white/40 backdrop-blur-lg rounded-3xl shadow-2xl p-8 animate-fadeIn">
+      <h2 className="text-3xl font-semibold text-blue-700 mb-6">Employees</h2>
+      <table className="w-full text-center border border-blue-200 rounded-xl overflow-hidden">
+        <thead className="bg-blue-600 text-white">
+          <tr>
+            <th className="p-3">ID</th>
+            <th className="p-3">Name</th>
+            <th className="p-3">Hourly Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {employees.map((e, i) => (
+            <tr key={e.id} className={`${i % 2 ? "bg-blue-50" : "bg-white/70"}`}>
+              <td className="p-3">{e.id}</td>
+              <td className="p-3">{e.name}</td>
+              <td className="p-3">${e.hourlyRate}</td>
+            </tr>
           ))}
-        </div>
-      )}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
+
+export default Employees;

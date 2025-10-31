@@ -1,0 +1,42 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-payroo-dev-25044-authRole",
+      "UnauthRoleArn": "arn:aws:iam::300553112472:role/amplify-payroo-dev-25044-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::300553112472:role/amplify-payroo-dev-25044-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-payroo-dev-25044-deployment",
+      "UnauthRoleName": "amplify-payroo-dev-25044-unauthRole",
+      "StackName": "amplify-payroo-dev-25044",
+      "StackId": "arn:aws:cloudformation:ap-south-1:300553112472:stack/amplify-payroo-dev-25044/24fda220-b631-11f0-aeb0-0ac1b711f8b3",
+      "AmplifyAppId": "diz36icbilhby"
+    }
+  },
+  "prod": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-payroo-prod-a7cff-authRole",
+      "UnauthRoleArn": "arn:aws:iam::300553112472:role/amplify-payroo-prod-a7cff-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::300553112472:role/amplify-payroo-prod-a7cff-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-payroo-prod-a7cff-deployment",
+      "UnauthRoleName": "amplify-payroo-prod-a7cff-unauthRole",
+      "StackName": "amplify-payroo-prod-a7cff",
+      "StackId": "arn:aws:cloudformation:ap-south-1:300553112472:stack/amplify-payroo-prod-a7cff/f2c9f5a0-b631-11f0-b2dc-0ab7f855f821",
+      "AmplifyAppId": "diz36icbilhby"
+    },
+    "categories": {
+      "function": {
+        "payroof60e5510": {
+          "deploymentBucketName": "amplify-payroo-prod-a7cff-deployment",
+          "s3Key": "amplify-builds/payroof60e5510-344945726a5330695838-build.zip"
+        }
+      },
+      "api": {
+        "api58601aa0": {}
+      },
+      "hosting": {
+        "S3AndCloudFront": {}
+      }
+    }
+  }
+}

@@ -1,42 +1,33 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
 
-export default function TimesheetsPage() {
-  const [timesheets, setTimesheets] = useState([]);
-
-  useEffect(() => {
-    axios.get("http://localhost:4000/api/timesheets")
-      .then((res) => setTimesheets(res.data))
-      .catch(() => console.error("Failed to load timesheets"));
-  }, []);
+const Timesheets: React.FC = () => {
+  const timesheets = [
+    { employeeId: "E001", hoursWorked: 40 },
+    { employeeId: "E002", hoursWorked: 38 },
+    { employeeId: "E003", hoursWorked: 42 },
+  ];
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6 text-blue-300">Timesheets ⏰</h2>
-      {timesheets.length === 0 ? (
-        <p className="text-gray-400">No timesheets yet.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#1b2b4a] text-gray-300">
-                <th className="p-3">Employee</th>
-                <th className="p-3">Hours</th>
-                <th className="p-3">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {timesheets.map((t: any) => (
-                <tr key={t.id} className="border-b border-gray-700 hover:bg-[#16213d] transition">
-                  <td className="p-3">{t.employee?.name || "Unknown"}</td>
-                  <td className="p-3">{t.hours}</td>
-                  <td className="p-3">{new Date(t.date).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+    <div className="bg-white/40 backdrop-blur-lg rounded-3xl shadow-2xl p-8 animate-fadeIn">
+      <h2 className="text-3xl font-semibold text-blue-700 mb-6">Timesheets</h2>
+      <table className="w-full text-center border border-blue-200 rounded-xl overflow-hidden">
+        <thead className="bg-blue-600 text-white">
+          <tr>
+            <th className="p-3">Employee ID</th>
+            <th className="p-3">Hours Worked</th>
+          </tr>
+        </thead>
+        <tbody>
+          {timesheets.map((t, i) => (
+            <tr key={t.employeeId} className={`${i % 2 ? "bg-blue-50" : "bg-white/70"}`}>
+              <td className="p-3">{t.employeeId}</td>
+              <td className="p-3">{t.hoursWorked}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
+
+export default Timesheets;
